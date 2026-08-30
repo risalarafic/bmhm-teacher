@@ -1,0 +1,13 @@
+{
+  "@@locale": "en",
+  "appTitle": "BMHM Teacher",
+  "login": "Login",
+  "email": "Email",
+  "password": "Password",
+  "home": "Home",
+  "welcome": "Welcome",
+  "logout": "Logout",
+  "skip": "Skip",
+  "next": "Next",
+  "ok": "OK"
+}
