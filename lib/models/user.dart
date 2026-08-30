@@ -12,6 +12,7 @@ class Teacher {
     this.role,
     this.formGrade,
     this.formSection,
+    this.shift,
   });
 
   final int? id;
@@ -24,6 +25,7 @@ class Teacher {
   final String? role;
   final String? formGrade;
   final String? formSection;
+  final int? shift;
 
   int? get displayId => hrid ?? id;
 
@@ -58,6 +60,7 @@ class Teacher {
       role: json['role']?.toString() ?? 'Teacher',
       formGrade: json['form_grade']?.toString(),
       formSection: json['form_section']?.toString(),
+      shift: parseInt(json['shift']),
     );
   }
 
@@ -75,6 +78,7 @@ class Teacher {
       'role': role,
       'form_grade': formGrade,
       'form_section': formSection,
+      'shift': shift,
     };
   }
 }

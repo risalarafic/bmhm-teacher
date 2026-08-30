@@ -44,22 +44,22 @@ class ProfilePage extends StatelessWidget {
                   AccountMenuItem(
                     icon: Icons.person_outline_rounded,
                     label: 'Personal Information',
-                    onTap: () => _comingSoon(context, 'Personal Information'),
+                    onTap: () => _underUpdate(context),
                   ),
                   AccountMenuItem(
                     icon: Icons.lock_outline_rounded,
                     label: 'Change Password',
-                    onTap: () => _comingSoon(context, 'Change Password'),
+                    onTap: () => _underUpdate(context),
                   ),
                   AccountMenuItem(
                     icon: Icons.settings_outlined,
                     label: 'App Settings',
-                    onTap: () => _comingSoon(context, 'App Settings'),
+                    onTap: () => _underUpdate(context),
                   ),
                   AccountMenuItem(
                     icon: Icons.info_outline_rounded,
                     label: 'About Us',
-                    onTap: () => _comingSoon(context, 'About Us'),
+                    onTap: () => _underUpdate(context),
                   ),
                 ],
               ),
@@ -108,8 +108,8 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  void _comingSoon(BuildContext context, String label) {
-    showSnackBarMessage('$label coming soon', context, AppColors.primary);
+  void _underUpdate(BuildContext context) {
+    showSnackBarMessage('Under update', context, AppColors.primary);
   }
 
   Future<void> _logout(BuildContext context) async {

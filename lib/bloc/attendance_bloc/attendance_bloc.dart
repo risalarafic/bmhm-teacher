@@ -9,7 +9,6 @@ import '../../models/user.dart';
 import '../../service/base_service.dart';
 import '../../utils/common_methods.dart';
 import '../../utils/constants/app_strings.dart';
-import '../../utils/constants/colors.dart';
 import 'attendance_bloc_model.dart';
 
 class AttendanceBloc {
@@ -58,6 +57,7 @@ class AttendanceBloc {
     List<StudentAttendance>? students,
     bool? isSubmitting,
     bool? isLoading,
+    bool? isSubmitted,
     bool clearGrade = false,
     bool clearSection = false,
   }) {
@@ -68,6 +68,7 @@ class AttendanceBloc {
       students: students,
       isSubmitting: isSubmitting,
       isLoading: isLoading,
+      isSubmitted: isSubmitted,
       clearGrade: clearGrade,
       clearSection: clearSection,
     );
@@ -89,16 +90,58 @@ class AttendanceBloc {
   }
 
   Future<void> submit(BuildContext context) async {
-    if (!_model.hasSelection || _model.students.isEmpty) return;
+    if (!_model.hasSelection || _model.students.isEmpty || _model.isSubmitted) {
+      return;
+    }
     _updateWith(isSubmitting: true);
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    _updateWith(isSubmitting: false);
-    if (!context.mounted) return;
-    showSnackBarMessage(
-      'Attendance submitted for ${_model.formClass}',
-      context,
-      AppColors.primary,
-    );
+
+    try {
+      final auth = await teacherApiBody();
+      final user = teacher ?? await getUserInfo();
+      if (!context.mounted) return;
+
+      final present = <String>[];
+      final absent = <String>[];
+      final late = <String>[];
+      for (final student in _model.students) {
+        switch (student.status) {
+          case AttendanceStatus.present:
+            present.add(student.name);
+          case AttendanceStatus.absent:
+            absent.add(student.name);
+          case AttendanceStatus.late:
+            late.add(student.name);
+        }
+      }
+
+      final body = {
+        'username': user?.email ?? auth['username'] ?? '',
+        'auth_token': auth['auth_token'] ?? '',
+        'date': apiDate(_model.date),
+        'grade': _model.grade,
+        'section': _model.section,
+        'present': present,
+        'absent': absent,
+        'late': late,
+      };
+      debugPrint('saveattendance request $saveAttendance $body');
+
+      final response = await service.execute(
+        context,
+        saveAttendance,
+        method: Method.post,
+        showLoading: false,
+        body: body,
+      );
+      debugPrint('saveattendance response $response');
+
+      if (!context.mounted) return;
+      _updateWith(isSubmitting: false);
+      if (response != null) _updateWith(isSubmitted: true);
+    } catch (e) {
+      debugPrint('saveattendance $e');
+      _updateWith(isSubmitting: false);
+    }
   }
 
   Future<void> loadStudents(BuildContext context) async {
@@ -127,7 +170,7 @@ class AttendanceBloc {
       );
 
       final list = StudentAttendance.parseFormStudents(response);
-      _updateWith(isLoading: false, students: list);
+      _updateWith(isLoading: false, students: list, isSubmitted: false);
     } catch (e) {
       debugPrint('formstudents $e');
       _updateWith(isLoading: false, students: const []);

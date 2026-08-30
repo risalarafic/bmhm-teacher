@@ -71,7 +71,7 @@ class _SplashPageState extends State<SplashPage> {
           backgroundColor: AppColors.white,
           body: Center(
             child: Image(
-              image: AssetImage(schoolLogo),
+              image: AssetImage(schoolCrest),
               width: 220,
               fit: BoxFit.contain,
             ),

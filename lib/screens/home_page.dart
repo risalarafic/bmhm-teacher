@@ -7,6 +7,7 @@ import '../bloc/home_bloc/home_bloc.dart';
 import '../bloc/home_bloc/home_bloc_model.dart';
 import '../bloc/homework_bloc/homework_bloc.dart';
 import '../service/base_service.dart';
+import '../utils/common_methods.dart';
 import '../utils/constants/colors.dart';
 import '../widgets/app_bottom_bar/app_bottom_bar.dart';
 import '../widgets/dashboard/menu_grid.dart';
@@ -107,7 +108,17 @@ class _HomePageState extends State<HomePage> {
             ),
             bottomNavigationBar: AppBottomBar(
               currentIndex: model.navigationIndex,
-              onTap: bloc.updateNavIndex,
+              onTap: (index) {
+                if (index == 2) {
+                  showSnackBarMessage(
+                    'Under update',
+                    context,
+                    AppColors.primary,
+                  );
+                  return;
+                }
+                bloc.updateNavIndex(index);
+              },
             ),
           ),
         );
@@ -138,12 +149,11 @@ class _DashboardTab extends StatelessWidget {
           DashboardMenuGrid(
             onItemTap: (id) {
               if (id == 'homework' || id == 'notices') {
-                final homeworkBloc = Provider.of<HomeworkBloc>(
+                showSnackBarMessage(
+                  'Under update',
                   context,
-                  listen: false,
+                  AppColors.primary,
                 );
-                homeworkBloc.selectTab(id == 'notices' ? 1 : 0);
-                bloc.updateNavIndex(2);
                 return;
               }
               bloc.onMenuTap(context, id);

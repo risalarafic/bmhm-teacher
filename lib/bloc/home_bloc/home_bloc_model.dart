@@ -12,12 +12,7 @@ class HomeBlocModel {
     this.teacherId = '858',
     this.formClass = 'G-X - D',
     this.teacherImage,
-    this.nextClass = const NextClass(
-      subject: 'Chemistry',
-      section: 'G-IX - A',
-      timeRange: '08:00 - 08:45',
-      room: 'Lab 1',
-    ),
+    this.nextClass,
   }) : _teacherEmail = teacherEmail;
 
   final bool isLoading;
@@ -34,7 +29,7 @@ class HomeBlocModel {
   final String teacherId;
   final String formClass;
   final String? teacherImage;
-  final NextClass nextClass;
+  final NextClass? nextClass;
 
   HomeBlocModel copyWith({
     bool? isLoading,
@@ -47,6 +42,7 @@ class HomeBlocModel {
     String? formClass,
     String? teacherImage,
     NextClass? nextClass,
+    bool clearNextClass = false,
   }) {
     return HomeBlocModel(
       isLoading: isLoading ?? this.isLoading,
@@ -58,7 +54,7 @@ class HomeBlocModel {
       teacherId: teacherId ?? this.teacherId,
       formClass: formClass ?? this.formClass,
       teacherImage: teacherImage ?? this.teacherImage,
-      nextClass: nextClass ?? this.nextClass,
+      nextClass: clearNextClass ? null : (nextClass ?? this.nextClass),
     );
   }
 }

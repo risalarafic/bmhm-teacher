@@ -9,6 +9,7 @@ import '../utils/common_methods.dart';
 const userKey = 'Teacher';
 const authTokenKey = 'auth_token';
 const usernameKey = 'username';
+const shiftKey = 'shift';
 const introPageKey = 'intro';
 const locKey = 'location';
 const companyKey = 'company';
@@ -29,6 +30,9 @@ Future<void> saveUserInfo(Teacher user) async {
   final loginName = user.email ?? user.username;
   if (loginName != null && loginName.isNotEmpty) {
     await prefs.setString(usernameKey, loginName);
+  }
+  if (user.shift != null) {
+    await prefs.setInt(shiftKey, user.shift!);
   }
   teacher = user;
   debugPrint('saved user $result');
@@ -86,10 +90,12 @@ Future<Map<String, dynamic>> teacherApiBody() async {
       '';
   final token = user?.token ?? kToken ?? prefs.getString(authTokenKey) ?? '';
   final hrid = user?.displayId ?? user?.hrid ?? user?.id;
+  final shift = user?.shift ?? prefs.getInt(shiftKey);
   return {
     'hrid': '${hrid ?? ''}',
     'username': username,
     'auth_token': token,
+    'shift': '${shift ?? 1}',
   };
 }
 

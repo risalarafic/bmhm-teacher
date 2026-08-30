@@ -60,7 +60,16 @@ void hideLoader(BuildContext context) {
 void showSnackBarMessage(String content, BuildContext context, Color color) {
   if (content.isEmpty) return;
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(backgroundColor: color, content: Text(content)),
+    SnackBar(
+      backgroundColor: Colors.white,
+      content: Text(
+        content,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
   );
 }
 

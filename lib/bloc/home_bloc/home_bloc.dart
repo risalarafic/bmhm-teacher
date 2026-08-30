@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../auth_service/auth_service.dart';
+import '../../models/class_routine.dart';
 import '../../models/home.dart';
+import '../../models/next_class.dart';
 import '../../models/user.dart';
 import '../../screens/login_page.dart';
 import '../../screens/attendance_page.dart';
+import '../../screens/class_routine_page.dart';
 import '../../screens/form_students_page.dart';
 import '../../screens/subjects_page.dart';
 import '../../service/base_service.dart';
@@ -42,6 +45,8 @@ class HomeBloc {
     String? teacherId,
     String? formClass,
     String? teacherImage,
+    NextClass? nextClass,
+    bool clearNextClass = false,
   }) {
     _model = _model.copyWith(
       isLoading: isLoading,
@@ -53,6 +58,8 @@ class HomeBloc {
       teacherId: teacherId,
       formClass: formClass,
       teacherImage: teacherImage,
+      nextClass: nextClass,
+      clearNextClass: clearNextClass,
     );
     _modelController.add(_model);
   }
@@ -81,23 +88,43 @@ class HomeBloc {
       ),
     );
     if (!context.mounted) return;
-    await loadHome(context);
+    await loadTeacherRoutine(context);
   }
 
-  Future<void> loadHome(BuildContext context) async {
+  Future<void> loadTeacherRoutine(BuildContext context) async {
     try {
+      final creds = await teacherApiBody();
+      final body = {
+        'username': creds['username'],
+        'auth_token': creds['auth_token'],
+        'shift': creds['shift'],
+      };
+      debugPrint('teacherroutine body $body');
+      if (!context.mounted) return;
       final response = await service.execute(
         context,
-        home,
+        teacherRoutine,
+        method: Method.post,
         showLoading: false,
         showSnackBar: false,
+        body: body,
       );
-      if (response is Map<String, dynamic>) {
-        _updateWith(home: Home.fromJson(response), isLoading: false);
+      if (response is Map<String, dynamic> &&
+          (response['success'] == true ||
+              response['success'] == 1 ||
+              response['success']?.toString() == 'true')) {
+        final next = ClassRoutine.fromJson(response).nextUpcoming();
+        _updateWith(
+          isLoading: false,
+          nextClass: next,
+          clearNextClass: next == null,
+        );
+        return;
       }
+      _updateWith(isLoading: false, clearNextClass: true);
     } catch (e) {
-      debugPrint('home api $e');
-      _updateWith(isLoading: false);
+      debugPrint('teacherroutine $e');
+      _updateWith(isLoading: false, clearNextClass: true);
     }
   }
 
@@ -116,15 +143,19 @@ class HomeBloc {
       open(context, FormStudentsPage.create(context));
       return;
     }
-    showSnackBarMessage('$id coming soon', context, AppColors.primary);
+    if (id == 'class_routine') {
+      open(context, ClassRoutinePage.create(context));
+      return;
+    }
+    showSnackBarMessage('Under update', context, AppColors.primary);
   }
 
   void onReminderTap(BuildContext context) {
-    showSnackBarMessage('Class routine coming soon', context, AppColors.primary);
+    open(context, ClassRoutinePage.create(context));
   }
 
   void onNotificationsTap(BuildContext context) {
-    showSnackBarMessage('Notifications coming soon', context, AppColors.primary);
+    showSnackBarMessage('Under update', context, AppColors.primary);
   }
 
   Future<void> logout(BuildContext context) async {

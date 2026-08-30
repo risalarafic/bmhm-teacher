@@ -10,7 +10,7 @@ class NextClassReminderCard extends StatelessWidget {
     this.onTap,
   });
 
-  final NextClass nextClass;
+  final NextClass? nextClass;
   final VoidCallback? onTap;
 
   @override
@@ -53,7 +53,9 @@ class NextClassReminderCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${nextClass.subject} • ${nextClass.section}',
+                      nextClass == null
+                          ? 'No upcoming class'
+                          : '${nextClass!.subject} • ${nextClass!.section}',
                       style: const TextStyle(
                         color: AppColors.white,
                         fontSize: 16,
@@ -62,7 +64,9 @@ class NextClassReminderCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${nextClass.timeRange} • ${nextClass.room}',
+                      nextClass == null
+                          ? '—'
+                          : '${nextClass!.timeRange} • ${nextClass!.room}',
                       style: const TextStyle(
                         color: AppColors.white,
                         fontSize: 12,

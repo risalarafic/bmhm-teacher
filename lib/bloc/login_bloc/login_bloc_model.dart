@@ -1,7 +1,7 @@
 class LoginBlocModel {
   LoginBlocModel({
-    this.email = 'moshiur@bmhm-q.org',
-    this.password = 'murad',
+    this.email = '',
+    this.password = '',
     this.isLoading = false,
     this.obscurePassword = true,
   });

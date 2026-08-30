@@ -8,6 +8,7 @@ class AttendanceBlocModel {
     this.students = const [],
     this.isSubmitting = false,
     this.isLoading = false,
+    this.isSubmitted = false,
   }) : date = date ?? DateTime.now();
 
   final String? grade;
@@ -16,6 +17,7 @@ class AttendanceBlocModel {
   final List<StudentAttendance> students;
   final bool isSubmitting;
   final bool isLoading;
+  final bool isSubmitted;
 
   bool get hasSelection =>
       (grade != null && grade!.isNotEmpty) &&
@@ -45,6 +47,7 @@ class AttendanceBlocModel {
     List<StudentAttendance>? students,
     bool? isSubmitting,
     bool? isLoading,
+    bool? isSubmitted,
     bool clearGrade = false,
     bool clearSection = false,
   }) {
@@ -55,6 +58,7 @@ class AttendanceBlocModel {
       students: students ?? this.students,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       isLoading: isLoading ?? this.isLoading,
+      isSubmitted: isSubmitted ?? this.isSubmitted,
     );
   }
 }
