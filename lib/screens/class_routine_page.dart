@@ -6,8 +6,10 @@ import '../bloc/routine_bloc/routine_bloc.dart';
 import '../bloc/routine_bloc/routine_bloc_model.dart';
 import '../models/class_routine.dart';
 import '../service/base_service.dart';
+import '../utils/common_methods.dart';
 import '../utils/constants/colors.dart';
 import '../widgets/routine/routine_period_tile.dart';
+import 'class_routine_pdf_page.dart';
 
 class ClassRoutinePage extends StatefulWidget {
   const ClassRoutinePage({super.key, required this.bloc});
@@ -67,6 +69,27 @@ class _ClassRoutinePageState extends State<ClassRoutinePage> {
                   fontSize: 20,
                 ),
               ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    open(
+                      context,
+                      ClassRoutinePdfPage(
+                        routine: model.routine,
+                        teacherName: teacher?.name,
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'View',
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
             ),
             body: Column(
               children: [

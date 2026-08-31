@@ -91,6 +91,27 @@ class ClassRoutine {
   List<RoutineSlot> slotsFor(int weekday) =>
       slots.where((s) => s.weekday == weekday).toList();
 
+  List<int> get periodIds {
+    final ids = slots.map((s) => s.periodId).toSet().toList()..sort();
+    return ids;
+  }
+
+  String timeRangeFor(int periodId) {
+    for (final slot in slots) {
+      if (slot.periodId == periodId) return slot.timeRange;
+    }
+    return 'Period $periodId';
+  }
+
+  String subjectAt({required int weekday, required int periodId}) {
+    for (final slot in slots) {
+      if (slot.weekday == weekday && slot.periodId == periodId) {
+        return slot.subjectName;
+      }
+    }
+    return '';
+  }
+
   /// School weekday 1–5 (Sun–Thu). Friday/Saturday fall back to Sunday.
   static int selectedWeekdayFor(DateTime date) => apiWeekday(date) ?? 1;
 
