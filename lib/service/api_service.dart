@@ -76,7 +76,8 @@ class APIService implements BaseService {
           );
           break;
       }
-      debugPrint('response ${response.statusCode} ${response.body}');
+      debugPrint('response status ${response.statusCode}');
+      debugPrint(response.body, wrapWidth: 800);
       if (!context.mounted) return null;
       return _returnResponse(
         response,

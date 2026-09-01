@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../auth_service/auth_service.dart';
 import '../../models/student_attendance.dart';
@@ -25,6 +27,46 @@ class AttendanceBloc {
   AttendanceBlocModel get current => _model;
   bool _loadingStudents = false;
 
+  String get _submittedPrefKey {
+    final day = DateFormat('yyyy-MM-dd').format(_model.date);
+    final user = teacher?.email ?? teacher?.username ?? '';
+    return '$attendanceSubmittedPrefix${user}_${day}_${_model.grade ?? ''}_${_model.section ?? ''}';
+  }
+
+  String get _legacySubmittedPrefKey {
+    final day = DateFormat('yyyy-MM-dd').format(_model.date);
+    return '$attendanceSubmittedPrefix${day}_${_model.grade ?? ''}_${_model.section ?? ''}';
+  }
+
+  Future<void> _persistSubmitted(List<StudentAttendance> students) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _submittedPrefKey,
+      jsonEncode([
+        for (final student in students)
+          {
+            'student_id': '${student.stdId ?? student.id}',
+            'name': student.name,
+            'status': student.status.apiCode,
+            'guardian_number': student.guardianNumber ?? '',
+          },
+      ]),
+    );
+  }
+
+  Future<List<StudentAttendance>?> _restoreSubmitted(
+    List<StudentAttendance> existing,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_submittedPrefKey) ??
+        prefs.getString(_legacySubmittedPrefKey);
+    if (raw == null || raw.isEmpty) return null;
+    return StudentAttendance.parseSavedAttendance(
+      jsonDecode(raw),
+      existing: existing,
+    );
+  }
+
   void dispose() {
     _modelController.close();
   }
@@ -34,6 +76,7 @@ class AttendanceBloc {
     _applyTeacher(user);
     _modelController.add(_model);
     if (!context.mounted) return;
+    if (_model.isSubmitted) return;
     await loadStudents(context);
   }
 
@@ -76,6 +119,7 @@ class AttendanceBloc {
   }
 
   void setStatus(String studentId, AttendanceStatus status) {
+    if (_model.isSubmitted) return;
     final students = _model.students
         .map((s) => s.id == studentId ? s.copyWith(status: status) : s)
         .toList();
@@ -83,6 +127,7 @@ class AttendanceBloc {
   }
 
   void markAllPresent() {
+    if (_model.isSubmitted) return;
     final students = _model.students
         .map((s) => s.copyWith(status: AttendanceStatus.present))
         .toList();
@@ -100,31 +145,23 @@ class AttendanceBloc {
       final user = teacher ?? await getUserInfo();
       if (!context.mounted) return;
 
-      final present = <String>[];
-      final absent = <String>[];
-      final late = <String>[];
-      for (final student in _model.students) {
-        switch (student.status) {
-          case AttendanceStatus.present:
-            present.add(student.name);
-          case AttendanceStatus.absent:
-            absent.add(student.name);
-          case AttendanceStatus.late:
-            late.add(student.name);
-        }
-      }
-
       final body = {
         'username': user?.email ?? auth['username'] ?? '',
         'auth_token': auth['auth_token'] ?? '',
-        'date': apiDate(_model.date),
+        'attdate': DateFormat('yyyy-MM-dd').format(_model.date),
         'grade': _model.grade,
         'section': _model.section,
-        'present': present,
-        'absent': absent,
-        'late': late,
+        'students': [
+          for (final student in _model.students)
+            {
+              'student_id': '${student.stdId ?? student.id}',
+              'status': student.status.apiCode,
+              'guardian_number': student.guardianNumber ?? '',
+            },
+        ],
       };
-      debugPrint('saveattendance request $saveAttendance $body');
+      debugPrint('saveattendance request $saveAttendance');
+      debugPrint('$body', wrapWidth: 800);
 
       final response = await service.execute(
         context,
@@ -133,11 +170,27 @@ class AttendanceBloc {
         showLoading: false,
         body: body,
       );
-      debugPrint('saveattendance response $response');
+      debugPrint('saveattendance response type=${response.runtimeType}');
+      debugPrint('$response', wrapWidth: 800);
 
       if (!context.mounted) return;
-      _updateWith(isSubmitting: false);
-      if (response != null) _updateWith(isSubmitted: true);
+      if (response == null) {
+        _updateWith(isSubmitting: false);
+        return;
+      }
+      final saved = StudentAttendance.parseSavedAttendance(
+        response,
+        existing: _model.students,
+      );
+      debugPrint(
+        'saveattendance display ${saved.map((s) => '${s.name}:${s.status.apiCode}').toList()}',
+      );
+      _updateWith(
+        isSubmitting: false,
+        isSubmitted: true,
+        students: saved.isNotEmpty ? saved : _model.students,
+      );
+      await _persistSubmitted(saved.isNotEmpty ? saved : _model.students);
     } catch (e) {
       debugPrint('saveattendance $e');
       _updateWith(isSubmitting: false);
@@ -170,7 +223,13 @@ class AttendanceBloc {
       );
 
       final list = StudentAttendance.parseFormStudents(response);
-      _updateWith(isLoading: false, students: list, isSubmitted: false);
+      final restored = await _restoreSubmitted(list);
+      final alreadySubmitted = restored != null && restored.isNotEmpty;
+      _updateWith(
+        isLoading: false,
+        students: alreadySubmitted ? restored : list,
+        isSubmitted: alreadySubmitted,
+      );
     } catch (e) {
       debugPrint('formstudents $e');
       _updateWith(isLoading: false, students: const []);

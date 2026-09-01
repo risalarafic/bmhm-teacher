@@ -13,6 +13,7 @@ const shiftKey = 'shift';
 const introPageKey = 'intro';
 const locKey = 'location';
 const companyKey = 'company';
+const attendanceSubmittedPrefix = 'attendance_submitted_';
 
 Future<void> saveIntro(String intro) async {
   final prefs = await SharedPreferences.getInstance();
@@ -102,10 +103,19 @@ Future<Map<String, dynamic>> teacherApiBody() async {
 Future<void> clearPrefs() async {
   final prefs = await SharedPreferences.getInstance();
   final introData = prefs.getString(introPageKey);
+  final attendance = <String, String>{};
+  for (final key in prefs.getKeys()) {
+    if (!key.startsWith(attendanceSubmittedPrefix)) continue;
+    final value = prefs.getString(key);
+    if (value != null) attendance[key] = value;
+  }
   teacher = null;
   kToken = null;
   await prefs.clear();
   if (introData != null) {
     await prefs.setString(introPageKey, introData);
+  }
+  for (final entry in attendance.entries) {
+    await prefs.setString(entry.key, entry.value);
   }
 }

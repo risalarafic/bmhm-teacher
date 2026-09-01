@@ -8,10 +8,12 @@ class StudentAttendanceTile extends StatelessWidget {
     super.key,
     required this.student,
     required this.onStatusChanged,
+    this.enabled = true,
   });
 
   final StudentAttendance student;
   final ValueChanged<AttendanceStatus> onStatusChanged;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +46,29 @@ class StudentAttendanceTile extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              student.name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontWeight: FontWeight.w800,
-                fontSize: 14,
-                color: AppColors.textDark,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  student.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    color: AppColors.textDark,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'ID: ${student.stdId ?? student.id}',
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 8),
@@ -62,7 +78,9 @@ class StudentAttendanceTile extends StatelessWidget {
             selectedColor: AppColors.primary,
             unselectedColor: AppColors.primary.withValues(alpha: 0.12),
             unselectedText: AppColors.primary,
-            onTap: () => onStatusChanged(AttendanceStatus.present),
+            onTap: enabled
+                ? () => onStatusChanged(AttendanceStatus.present)
+                : null,
           ),
           const SizedBox(width: 6),
           _StatusChip(
@@ -71,16 +89,9 @@ class StudentAttendanceTile extends StatelessWidget {
             selectedColor: AppColors.red,
             unselectedColor: AppColors.absentBg,
             unselectedText: AppColors.red,
-            onTap: () => onStatusChanged(AttendanceStatus.absent),
-          ),
-          const SizedBox(width: 6),
-          _StatusChip(
-            label: 'L',
-            selected: student.status == AttendanceStatus.late,
-            selectedColor: AppColors.late,
-            unselectedColor: AppColors.lateBg,
-            unselectedText: AppColors.late,
-            onTap: () => onStatusChanged(AttendanceStatus.late),
+            onTap: enabled
+                ? () => onStatusChanged(AttendanceStatus.absent)
+                : null,
           ),
         ],
       ),
@@ -95,7 +106,7 @@ class _StatusChip extends StatelessWidget {
     required this.selectedColor,
     required this.unselectedColor,
     required this.unselectedText,
-    required this.onTap,
+    this.onTap,
   });
 
   final String label;
@@ -103,7 +114,7 @@ class _StatusChip extends StatelessWidget {
   final Color selectedColor;
   final Color unselectedColor;
   final Color unselectedText;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {

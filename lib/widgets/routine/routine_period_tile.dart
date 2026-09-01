@@ -55,25 +55,41 @@ class RoutinePeriodTile extends StatelessWidget {
                     color: AppColors.textDark,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  slot.timeRange,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.grey,
-                    fontWeight: FontWeight.w400,
+                if (slot.classLabel.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    slot.classLabel,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
-          Text(
-            'Period ${slot.periodId}',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                slot.timeRange,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.grey,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Period ${slot.periodId}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ],
           ),
         ],
       ),

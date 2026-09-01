@@ -103,6 +103,15 @@ Future<Uint8List> buildClassRoutinePdf({
                       weekday: day,
                       periodId: periodId,
                     );
+                    final classLabel = routine.classLabelAt(
+                      weekday: day,
+                      periodId: periodId,
+                    );
+                    final subjectText = subject.isEmpty
+                        ? '—'
+                        : (classLabel.isEmpty
+                            ? subject
+                            : '$subject\n$classLabel');
                     return pw.TableRow(
                       decoration: pw.BoxDecoration(
                         color: entry.key.isOdd ? altRow : PdfColors.white,
@@ -110,7 +119,7 @@ Future<Uint8List> buildClassRoutinePdf({
                       children: [
                         _cell('$periodId', bold: true),
                         _cell(routine.timeRangeFor(periodId)),
-                        _cell(subject.isEmpty ? '—' : subject),
+                        _cell(subjectText),
                       ],
                     );
                   }),

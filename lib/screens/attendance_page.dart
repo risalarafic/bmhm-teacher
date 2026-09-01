@@ -101,7 +101,8 @@ class _AttendancePageState extends State<AttendancePage> {
                   padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
                   child: AttendanceSummaryRow(
                     model: model,
-                    onMarkAllPresent: bloc.markAllPresent,
+                    onMarkAllPresent:
+                        model.isSubmitted ? null : bloc.markAllPresent,
                   ),
                 ),
                 Expanded(
@@ -112,15 +113,29 @@ class _AttendancePageState extends State<AttendancePage> {
                       final student = model.students[index];
                       return StudentAttendanceTile(
                         student: student,
+                        enabled: !model.isSubmitted,
                         onStatusChanged: (status) =>
                             bloc.setStatus(student.id, status),
                       );
                     },
                   ),
                 ),
-                if (!model.isSubmitted)
+                if (model.isSubmitted)
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 28),
+                    child: Text(
+                      'Attendance already submitted for today. Editing is locked.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.grey,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  )
+                else
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
                     child: SizedBox(
                       width: double.infinity,
                       height: 50,

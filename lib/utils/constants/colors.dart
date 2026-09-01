@@ -9,8 +9,6 @@ class AppColors {
   static const Color loginGreen = Color(0xFF1B823E);
   static const Color yellow = Color(0xFFF5D76E);
   static const Color yellowSoft = Color(0xFFFBF6E3);
-  static const Color late = Color(0xFFE8A800);
-  static const Color lateBg = Color(0xFFFFF3D6);
   static const Color absentBg = Color(0xFFFFE4E6);
   static const Color red = Color(0xFFD64545);
   static const Color blue = Color(0xFF2E7DD2);

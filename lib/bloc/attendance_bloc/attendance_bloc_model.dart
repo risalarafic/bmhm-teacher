@@ -37,9 +37,6 @@ class AttendanceBlocModel {
   int get absentCount =>
       students.where((s) => s.status == AttendanceStatus.absent).length;
 
-  int get lateCount =>
-      students.where((s) => s.status == AttendanceStatus.late).length;
-
   AttendanceBlocModel copyWith({
     String? grade,
     String? section,

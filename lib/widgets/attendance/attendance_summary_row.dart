@@ -7,11 +7,11 @@ class AttendanceSummaryRow extends StatelessWidget {
   const AttendanceSummaryRow({
     super.key,
     required this.model,
-    required this.onMarkAllPresent,
+    this.onMarkAllPresent,
   });
 
   final AttendanceBlocModel model;
-  final VoidCallback onMarkAllPresent;
+  final VoidCallback? onMarkAllPresent;
 
   @override
   Widget build(BuildContext context) {
@@ -20,25 +20,24 @@ class AttendanceSummaryRow extends StatelessWidget {
         _CountDot(color: AppColors.primary, label: '${model.presentCount} Present'),
         const SizedBox(width: 12),
         _CountDot(color: AppColors.red, label: '${model.absentCount} Absent'),
-        const SizedBox(width: 12),
-        _CountDot(color: AppColors.late, label: '${model.lateCount} Late'),
         const Spacer(),
-        TextButton(
-          onPressed: onMarkAllPresent,
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          child: const Text(
-            'Mark all present',
-            style: TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w700,
-              fontSize: 13,
+        if (onMarkAllPresent != null)
+          TextButton(
+            onPressed: onMarkAllPresent,
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text(
+              'Mark all present',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
             ),
           ),
-        ),
       ],
     );
   }

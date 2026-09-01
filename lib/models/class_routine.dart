@@ -8,6 +8,8 @@ class RoutineSlot {
     required this.startMinutes,
     required this.endMinutes,
     required this.timeRange,
+    this.grade = '',
+    this.section = '',
   });
 
   /// API weekday: 1 = Sunday … 5 = Thursday.
@@ -17,6 +19,14 @@ class RoutineSlot {
   final int startMinutes;
   final int endMinutes;
   final String timeRange;
+  final String grade;
+  final String section;
+
+  String get classLabel {
+    if (grade.isEmpty) return section;
+    if (section.isEmpty) return grade;
+    return '$grade - $section';
+  }
 
   String get weekdayLabel {
     const names = ['', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
@@ -62,6 +72,8 @@ class ClassRoutine {
             startMinutes: timing?.$1 ?? periodId * 45,
             endMinutes: timing?.$2 ?? periodId * 45 + 40,
             timeRange: timing?.$3 ?? 'Period $periodId',
+            grade: map['grade']?.toString().trim() ?? '',
+            section: map['section']?.toString().trim() ?? '',
           ),
         );
       }
@@ -104,12 +116,20 @@ class ClassRoutine {
   }
 
   String subjectAt({required int weekday, required int periodId}) {
+    return slotAt(weekday: weekday, periodId: periodId)?.subjectName ?? '';
+  }
+
+  String classLabelAt({required int weekday, required int periodId}) {
+    return slotAt(weekday: weekday, periodId: periodId)?.classLabel ?? '';
+  }
+
+  RoutineSlot? slotAt({required int weekday, required int periodId}) {
     for (final slot in slots) {
       if (slot.weekday == weekday && slot.periodId == periodId) {
-        return slot.subjectName;
+        return slot;
       }
     }
-    return '';
+    return null;
   }
 
   /// School weekday 1–5 (Sun–Thu). Friday/Saturday fall back to Sunday.
@@ -134,7 +154,7 @@ class ClassRoutine {
   static NextClass _toNextClass(RoutineSlot slot) {
     return NextClass(
       subject: slot.subjectName,
-      section: slot.weekdayLabel,
+      section: slot.classLabel.isEmpty ? slot.weekdayLabel : slot.classLabel,
       timeRange: slot.timeRange,
       room: 'Period ${slot.periodId}',
     );
